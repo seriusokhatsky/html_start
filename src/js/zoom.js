@@ -3,6 +3,7 @@
 
 	var $el,
 		options,
+		imageSource,
 		image,
 		originalSource,
 		originalImage,
@@ -21,7 +22,9 @@
 		init: function(  ) {
 			image = $el.find('img');
 
-			image.attr('src', image.data('src'));
+			imageSource = image.data('src');
+
+			image.attr('src', imageSource);
 			
 			image.load(function( e ) { 
 				imageLoaded = true;
@@ -29,6 +32,33 @@
 			});
 
 			originalSource = image.data('original');
+
+			zoom.prepareMarkup();
+
+			lense = $el.find( '.zoom-lense' );
+			
+			zoominWindow = $el.find( '.zoom-image-original' );
+			originalImage = $el.find( '.zoom-image-original' ).find('img');
+
+			originalImage.load(function( e ) {
+				oiriginalLoaded = true;
+				zoom.calculations();
+			});
+
+			zoom.events();
+		},
+
+		events: function() {
+			image.on( 'mousemove', function( e ) {
+				zoom.mousemove(e);
+			} );
+
+			image.on( 'mouseleave', function( e ) {
+				zoom.mouseleave(e);
+			} );
+		},
+
+		prepareMarkup: function() {
 
 			var originalHTML = [
 				'<div class="zoom-image-original">',
@@ -44,30 +74,9 @@
 				return '<div class="zoom-image-wrapper">' + $( this ).html(); + '</div>';
 			});
 
+
 			image.after( originalHTML );
 			image.after( lenseHTMl );
-
-			lense = $( '.zoom-lense' );
-			
-			zoominWindow = $( '.zoom-image-original' );
-			originalImage = $( '.zoom-image-original' ).find('img');
-
-			originalImage.load(function( e ) {
-				oiriginalLoaded = true;
-				zoom.calculations();
-			});
-			
-
-			$('.zoom-image-wrapper').on( 'mousemove', function( e ) {
-				zoom.mousemove(e);
-			} );
-			$('.zoom-image-wrapper').on( 'mouseleave', function( e ) {
-				zoom.mouseleave(e);
-			} );
-		},
-
-		load: function( param ) {
-			console.log( param  );
 		},
 
 		calculations: function() {
@@ -103,11 +112,9 @@
 
 			if( e.offsetY < smallSize[1] / ( 2 * yRatio ) ) {
 				top = 0;
-				bottom = 'auto';
 			}
 			if( e.offsetX < smallSize[0] / ( 2 * xRatio ) ) {
 				left = 0;
-				right = 'auto';
 			}
 			if( (smallSize[0] - e.offsetX) < smallSize[0] / ( 2 * xRatio ) ) {
 				right = 0;
@@ -135,6 +142,26 @@
 
 		mouseleave: function( e ) {
 			zoominWindow.removeClass('visible');
+		},
+
+		load: function( small, original) {
+
+			imageSource = small;
+			image.attr('src', imageSource);
+			
+			image.load(function( e ) { 
+				imageLoaded = true;
+				zoom.calculations();
+			});
+
+			originalSource = original;
+
+			originalImage.attr('src', originalSource);
+
+			originalImage.load(function( e ) {
+				oiriginalLoaded = true;
+				zoom.calculations();
+			});
 		}
 	};	
 
@@ -144,7 +171,7 @@
 
 		// We call some API method of first param is a string
 		if (typeof params === "string" ) {
-			zoom[params].apply(zoom, Array.prototype.slice.call(arguments, 1) );
+			zoom[params].apply(zoom, Array.prototype.slice.call(arguments, 1), Array.prototype.slice.call(arguments, 2) );
 		} else {
 			// clone options obj
 			options = $.extend(true, {}, params);
@@ -157,4 +184,8 @@
 
 jQuery( document ).ready(function() {
 	$('.zoom-image').zoomImage();
+
+	$('.zoom-thumbnail').on('click', function() {
+		$('.zoom-image').zoomImage( 'load', $(this).data('small'), $(this).data('original') );
+	});
 });

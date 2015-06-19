@@ -17,6 +17,7 @@
   left: 0;
 }
 .zoom-image-wrapper .zoom-image-original {
+  margin-left: 30px;
   opacity: 0;
   visibility: hidden;
   overflow: hidden;
