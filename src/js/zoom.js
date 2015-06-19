@@ -49,11 +49,11 @@
 		},
 
 		events: function() {
-			image.on( 'mousemove', function( e ) {
+			$('.zoom-image-wrapper').on( 'mousemove', function( e ) {
 				zoom.mousemove(e);
 			} );
 
-			image.on( 'mouseleave', function( e ) {
+			$('.zoom-image-wrapper').on( 'mouseleave', function( e ) {
 				zoom.mouseleave(e);
 			} );
 		},
@@ -101,22 +101,28 @@
 		},
 
 		mousemove: function( e ) {
+			//console.log( e.pageX - $('.zoom-image-wrapper').offset().left );
+
+			var mouseLeft = e.pageX - $('.zoom-image-wrapper').offset().left,
+				mouseTop = e.pageY - $('.zoom-image-wrapper').offset().top;
+
 			zoominWindow.addClass('visible');
 			var top 	= 'auto', 
 				left 	= 'auto', 
 				bottom 	= 'auto', 
 				right 	= 'auto';
 
-			top  = - e.offsetY * xRatio + smallSize[1] / 2;
-			left = - e.offsetX * yRatio + smallSize[0] / 2;
+			top  = - mouseTop * xRatio + smallSize[1] / 2;
+			left = - mouseLeft * yRatio + smallSize[0] / 2;
 
-			if( e.offsetY < smallSize[1] / ( 2 * yRatio ) ) {
+
+			if( mouseTop < smallSize[1] / ( 2 * yRatio ) ) {
 				top = 0;
 			}
-			if( e.offsetX < smallSize[0] / ( 2 * xRatio ) ) {
+			if( mouseLeft < smallSize[0] / ( 2 * xRatio ) ) {
 				left = 0;
 			}
-			if( (smallSize[0] - e.offsetX) < smallSize[0] / ( 2 * xRatio ) ) {
+			if( (smallSize[0] - mouseLeft) < smallSize[0] / ( 2 * xRatio ) ) {
 				right = 0;
 				left = 'auto';
 			}
@@ -132,12 +138,12 @@
 				bottom: bottom
 			}, 200, 'linear');
 
-			/*lense.css({
+			lense.css({
 				width: lenseWidth,
 				height: lenseHeight,
-				top: e.offsetY - lenseHeight/2,
-				left: e.offsetX - lenseWidth/2
-			})*/
+				top: mouseTop - lenseHeight/2,
+				left: mouseLeft - lenseWidth/2
+			});
 		},
 
 		mouseleave: function( e ) {
@@ -155,7 +161,6 @@
 			});
 
 			originalSource = original;
-
 			originalImage.attr('src', originalSource);
 
 			originalImage.load(function( e ) {
