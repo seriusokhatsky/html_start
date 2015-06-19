@@ -9,6 +9,11 @@
 		zoominWindow,
 		imageLoaded = false,
 		oiriginalLoaded = false,
+		smallSize,
+		originalSize,
+		lense,
+		lenseWidth,
+		lenseHeight,
 		xRatio,
 		yRatio;
 
@@ -23,13 +28,6 @@
 				zoom.calculations();
 			});
 
-			image.on( 'mousemove', function( e ) {
-				zoom.mousemove(e);
-			} );
-			image.on( 'mouseleave', function( e ) {
-				zoom.mouseleave(e);
-			} );
-
 			originalSource = image.data('original');
 
 			var originalHTML = [
@@ -38,11 +36,18 @@
 				'</div>'
 			].join('');
 
+			var lenseHTMl = [ '<div class="zoom-lense">', 
+				'</div>',
+			].join('');
+
 			image.addClass('zoom-image-small').wrap(function() {
 				return '<div class="zoom-image-wrapper">' + $( this ).html(); + '</div>';
 			});
 
 			image.after( originalHTML );
+			image.after( lenseHTMl );
+
+			lense = $( '.zoom-lense' );
 			
 			zoominWindow = $( '.zoom-image-original' );
 			originalImage = $( '.zoom-image-original' ).find('img');
@@ -52,6 +57,13 @@
 				zoom.calculations();
 			});
 			
+
+			$('.zoom-image-wrapper').on( 'mousemove', function( e ) {
+				zoom.mousemove(e);
+			} );
+			$('.zoom-image-wrapper').on( 'mouseleave', function( e ) {
+				zoom.mouseleave(e);
+			} );
 		},
 
 		load: function( param ) {
@@ -61,12 +73,14 @@
 		calculations: function() {
 			if( ! imageLoaded || ! oiriginalLoaded) return;
 
-			var smallSize = [ image.width(), image.height() ],
-				originalSize = [ originalImage.width(), originalImage.height() ];
+			smallSize = [ image.width(), image.height() ];
+			originalSize = [ originalImage.width(), originalImage.height() ];
 
 			xRatio = parseInt( originalImage.width() / image.width() );
 			yRatio = parseInt( originalImage.height() / image.height() );
-			console.log(xRatio, yRatio);
+
+			lenseWidth  = smallSize[0] / xRatio;
+			lenseHeight = smallSize[1] / yRatio;
 
 			zoominWindow.css({
 				width:  smallSize[0],
@@ -79,12 +93,44 @@
 
 		mousemove: function( e ) {
 			zoominWindow.addClass('visible');
+			var top 	= 'auto', 
+				left 	= 'auto', 
+				bottom 	= 'auto', 
+				right 	= 'auto';
 
+			top  = - e.offsetY * xRatio + smallSize[1] / 2;
+			left = - e.offsetX * yRatio + smallSize[0] / 2;
 
-			originalImage.css({
-				top: - e.offsetY * xRatio,
-				left: - e.offsetX * yRatio
-			});
+			if( e.offsetY < smallSize[1] / ( 2 * yRatio ) ) {
+				top = 0;
+				bottom = 'auto';
+			}
+			if( e.offsetX < smallSize[0] / ( 2 * xRatio ) ) {
+				left = 0;
+				right = 'auto';
+			}
+			if( (smallSize[0] - e.offsetX) < smallSize[0] / ( 2 * xRatio ) ) {
+				right = 0;
+				left = 'auto';
+			}
+			if( (smallSize[1] - e.offsetY) < smallSize[1] / ( 2 * yRatio ) ) {
+				bottom = 0;
+				top = 'auto';
+			}
+
+			originalImage.stop().animate({
+				top: top,
+				left: left,
+				right: right,
+				bottom: bottom
+			}, 200, 'linear');
+
+			/*lense.css({
+				width: lenseWidth,
+				height: lenseHeight,
+				top: e.offsetY - lenseHeight/2,
+				left: e.offsetX - lenseWidth/2
+			})*/
 		},
 
 		mouseleave: function( e ) {
