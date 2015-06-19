@@ -1,0 +1,24 @@
+
+.zoom-image-wrapper {
+	.zoom-image-small {
+		float: left;
+	}
+	.zoom-image-original {
+		opacity: 0;
+		visibility: hidden;
+		overflow: hidden;
+		-webkit-transition: 0.3s all ease-in-out;
+		-moz-transition: 0.3s all ease-in-out;
+		transition: 0.3s all ease-in-out;
+		position: relative;
+		&.visible {
+			opacity: 1;
+			visibility: visible;
+		}
+		img {
+			position: absolute;
+			top:0;
+			left:0;
+		}
+	}
+}

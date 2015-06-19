@@ -2,12 +2,31 @@ var gulp  = require('gulp'),
 	sass  = require('gulp-ruby-sass'),
 	jade  = require('gulp-jade'),
     watch = require('gulp-watch'),
+    data = require('gulp-data'),
+    path = require('path'),
     livereload = require('gulp-livereload'),
 	connect = require('gulp-connect');
+
+var statics = {
+	test: "static test STRING",
+	title: "static title"
+};
 
 var config = {
 	bowerDir: './bower_components/'
 };
+
+gulp.task('js', function() {
+    return gulp.src('src/js/**/*.js')
+        .pipe(gulp.dest('dist/js'))
+    	.pipe(livereload());
+});
+
+gulp.task('watch-js', function () {
+	livereload.listen();
+
+    gulp.watch('src/js/**/*.js', ['js']);
+});
 
 gulp.task('sass', function() {
     return sass('src/sass', { style: 'expanded' })
@@ -23,8 +42,14 @@ gulp.task('watch-css', function () {
 
 gulp.task('jade', function () {
   return gulp.src('src/jade/**/*.jade')
+		.pipe(data(function(file) {
+			//var json = require('./src/data/' + path.basename(file.path) + '.json');
+			//var data = _.assign({}, json, statics);
+			//return data;
+			return statics;
+		}))
 		.pipe(jade({
-			pretty: true
+			pretty: true,
 		}))
 		.pipe(gulp.dest('dist/'))
 		.pipe(livereload());
@@ -38,7 +63,9 @@ gulp.task('watch-html', function () {
 
 
 gulp.task('connect', function() {
-	connect.server();
+	connect.server({
+		root: 'dist'
+	});
 });
 
 gulp.task('bootstrap', function() { 
@@ -57,7 +84,7 @@ gulp.task('build', ['sass', 'jade', 'bootstrap', 'jquery'], function() {
 
 });
 
-gulp.task('default', ['build', 'connect', 'watch-css', 'watch-html'], function() {
+gulp.task('default', ['build', 'connect', 'watch-css', 'watch-html', 'watch-js'], function() {
 
 	console.log('gulp run');
 
