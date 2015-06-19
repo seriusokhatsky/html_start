@@ -75,7 +75,7 @@
 			});
 
 
-			image.after( originalHTML );
+			$el.find('.zoom-image-wrapper').after( originalHTML );
 			image.after( lenseHTMl );
 		},
 
@@ -107,28 +107,40 @@
 				mouseTop = e.pageY - $('.zoom-image-wrapper').offset().top;
 
 			zoominWindow.addClass('visible');
-			var top 	= 'auto', 
-				left 	= 'auto', 
-				bottom 	= 'auto', 
-				right 	= 'auto';
+			var top 			= 'auto', 
+				left 			= 'auto', 
+				bottom 			= 'auto', 
+				right 			= 'auto',
+				lensetop 		= 'auto', 
+				lenseleft 		= 'auto', 
+				lensebottom 	= 'auto', 
+				lenseright 		= 'auto';
 
 			top  = - mouseTop * xRatio + smallSize[1] / 2;
 			left = - mouseLeft * yRatio + smallSize[0] / 2;
 
+			lensetop = mouseTop - lenseHeight/2;
+			lenseleft = mouseLeft - lenseWidth/2;
 
 			if( mouseTop < smallSize[1] / ( 2 * yRatio ) ) {
 				top = 0;
+				lensetop = 0;
 			}
 			if( mouseLeft < smallSize[0] / ( 2 * xRatio ) ) {
 				left = 0;
+				lenseleft = 0;
 			}
 			if( (smallSize[0] - mouseLeft) < smallSize[0] / ( 2 * xRatio ) ) {
 				right = 0;
 				left = 'auto';
+				lenseright = 0;
+				lenseleft = 'auto';
 			}
-			if( (smallSize[1] - e.offsetY) < smallSize[1] / ( 2 * yRatio ) ) {
+			if( (smallSize[1] - mouseTop) < smallSize[1] / ( 2 * yRatio ) ) {
 				bottom = 0;
 				top = 'auto';
+				lensebottom = 0;
+				lensetop = 'auto';
 			}
 
 			originalImage.stop().animate({
@@ -141,8 +153,10 @@
 			lense.css({
 				width: lenseWidth,
 				height: lenseHeight,
-				top: mouseTop - lenseHeight/2,
-				left: mouseLeft - lenseWidth/2
+				top: lensetop,
+				left: lenseleft,
+				right: lenseright,
+				bottom: lensebottom,
 			});
 		},
 
